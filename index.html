@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Maria Theresa Ledochowska College Communication</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen transition-colors duration-200 flex flex-col" id="body" style="min-height: 100vh; height: 100%;">
+    <div class="max-w-6xl mx-auto mt-10 bg-white p-6 rounded shadow-lg transition-colors duration-200" id="mainContainer">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                    <span>MT</span>
+                </div>
+                <h1 class="text-3xl font-bold text-blue-700 flex items-center gap-2">
+                    <i class="fas fa-comments text-blue-500 text-4xl"></i> Maria Theresa Ledochowska College Communication
+                </h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-200 transition-colors" title="Toggle dark mode">
+                    <i class="fas fa-moon text-gray-600" id="darkModeIcon"></i>
+                </button>
+                <button id="profileBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors" title="Edit profile">
+                    <i class="fas fa-user-circle text-gray-600 text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg hidden z-50 transition-all duration-300"></div>
+
+        <!-- Login Section -->
+        <div id="authSection">
+            <div class="mb-4">
+                <select id="roleSelect" class="border rounded p-2 w-full">
+                    <option value="Director">Director</option>
+                    <option value="Headteacher">Headteacher</option>
+                    <option value="Staff">Staff (Teacher)</option>
+                </select>
+            </div>
+            <input id="usernameInput" class="border rounded p-2 w-full mb-2" placeholder="Username or Email" />
+            <input id="passwordInput" type="password" class="border rounded p-2 w-full mb-2" placeholder="Password" />
+            <button id="loginBtn" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700 transition-colors">Login</button>
+            <button id="showRegisterBtn" class="mt-2 bg-green-600 text-white px-4 py-2 rounded w-full hover:bg-green-700 transition-colors">Register as Staff</button>
+            <button id="forgotPasswordBtn" class="mt-2 text-blue-600 hover:underline">Forgot Password?</button>
+            <div id="authMsg" class="text-red-500 mt-2"></div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <span id="welcomeMsg" class="font-semibold"></span>
+                <button id="logoutBtn" class="text-sm text-red-500 hover:text-red-700 transition-colors">Logout</button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="mb-4">
+                <div class="relative">
+                    <input id="searchInput" type="text" placeholder="Search messages, staff, or memos..." class="w-full border rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+
+            <div class="flex space-x-2 mb-4">
+                <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="messagesTab">Messages</button>
+                <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="memosTab">Memos</button>
+                <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="privateTab">Private Messages</button>
+                <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="meetingsTab">Meetings</button>
+                <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="directoryTab">Staff Directory</button>
+                <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="announcementsTab">Announcements</button>
+                <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="calendarTab">Calendar</button>
+            </div>
+
+            <!-- Tabs -->
+            <div id="messagesTab" class="tabSection hidden">
+                <div id="sendMessageSection" class="mb-4 hidden">
+                    <input id="messageInput" class="border rounded p-2 w-full mb-2" placeholder="Type a message to all staff..." />
+                    <button id="sendMessageBtn" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700 transition-colors">Send Message</button>
+                </div>
+                <h2 class="font-bold mb-2">Messages to Staff</h2>
+                <div id="messagesList"></div>
+            </div>
+
+            <div id="memosTab" class="tabSection hidden">
+                <div id="sendMemoSection" class="mb-4">
+                    <input id="memoInput" class="border rounded p-2 w-full mb-2" placeholder="Type a memo to all staff..." />
+                    <button id="sendMemoBtn" class="bg-green-600 text-white px-4 py-2 rounded w-full hover:bg-green-700 transition-colors">Send Memo</button>
+                </div>
+                <h2 class="font-bold mb-2">Memos to Staff</h2>
+                <div id="memosList"></div>
+            </div>
+
+            <div id="privateTab" class="tabSection hidden">
+                <h2 class="font-bold mb-2">Private Messages</h2>
+                <div id="privateMessagesList"></div>
+            </div>
+
+            <div id="meetingsTab" class="tabSection hidden">
+                <div id="scheduleMeetingSection" class="mb-4">
+                    <button id="scheduleMeetingBtn" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors">
+                        Schedule New Meeting
+                    </button>
+                </div>
+                <h2 class="font-bold mb-2">Online Meetings</h2>
+                <div id="meetingsList"></div>
+            </div>
+
+            <div id="directoryTab" class="tabSection hidden">
+                <h2 class="font-bold mb-2">Staff Directory</h2>
+                <div id="directoryList"></div>
+            </div>
+
+            <div id="announcementsTab" class="tabSection hidden">
+                <div id="sendAnnouncementSection" class="mb-4">
+                    <input id="announcementInput" class="border rounded p-2 w-full mb-2" placeholder="Type an announcement..." />
+                    <button id="sendAnnouncementBtn" class="bg-orange-600 text-white px-4 py-2 rounded w-full hover:bg-orange-700 transition-colors">Post Announcement</button> Set New Announcement
+                    </button </div>
+                    <h2 class="font-bold mb-2">Announcements</h2>
+                    <div id="announcementsList"></div>
+                </div>
+
+                <div id="calendarTab" class="tabSection hidden">
+                    <h2 class="font-bold mb-2">Calendar & Events</h2>
+                    <div id="calendarList"></div>
+                </div>
+            </div>
+
+            <!-- Modals -->
+            <!-- Add modals for private messages, registration, group messages, meetings, etc. here -->
+            <!-- Staff Registration Modal -->
+            <div id="registerModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+                <div class="bg-white rounded-lg p-6 w-96">
+                    <h2 class="text-lg font-bold mb-4">Staff Registration</h2>
+                    <input id="regName" class="border rounded p-2 w-full mb-2" placeholder="Full Name" />
+                    <input id="regEmail" class="border rounded p-2 w-full mb-2" placeholder="Email" type="email" />
+                    <input id="regPassword" class="border rounded p-2 w-full mb-2" placeholder="Password" type="password" />
+                    <button id="registerBtn" class="bg-green-600 text-white px-4 py-2 rounded w-full hover:bg-green-700 transition-colors">Register</button>
+                    <button id="closeRegisterModal" class="mt-2 bg-gray-300 px-4 py-2 rounded w-full">Cancel</button>
+                    <div id="registerMsg" class="text-red-500 mt-2"></div>
+                </div>
+            </div>
+            <!-- Meeting Modal -->
+            <div id="meetingModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+                <div class="bg-white rounded-lg p-6 w-96">
+                    <h2 class="text-lg font-bold mb-4">Schedule Meeting</h2>
+                    <input id="meetingTitle" class="border rounded p-2 w-full mb-2" placeholder="Meeting Title" />
+                    <input id="meetingDate" class="border rounded p-2 w-full mb-2" type="date" />
+                    <input id="meetingTime" class="border rounded p-2 w-full mb-2" type="time" />
+                    <textarea id="meetingDescription" class="border rounded p-2 w-full mb-2" rows="3" placeholder="Meeting Description"></textarea>
+                    <div class="flex justify-end space-x-2">
+                        <button id="createMeetingBtn" class="bg-purple-600 text-white px-4 py-2 rounded">Schedule Meeting</button>
+                        <button id="closeMeetingModal" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+                    </div>
+                    <div id="meetingMsg" class="text-red-500 mt-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Sample data for demonstration
+            const defaultStaffList = [{
+                email: 'staff1@example.com',
+                name: 'Staff One'
+            }, {
+                email: 'staff2@example.com',
+                name: 'Staff Two'
+            }, ];
+
+            // Function to set the current user
+            function setCurrentUser(user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                document.getElementById('welcomeMsg').textContent = `Welcome, ${user.username}`;
+                document.getElementById('dashboard').classList.remove('hidden');
+                document.getElementById('authSection').classList.add('hidden');
+
+            }
+
+            // Login functionality
+            document.getElementById('loginBtn').onclick = function() {
+                const role = document.getElementById('roleSelect').value;
+                const username = document.getElementById('usernameInput').value.trim();
+                const password = document.getElementById('passwordInput').value.trim();
+                if (!username || !password) {
+                    document.getElementById('authMsg').textContent = "Please enter username and password.";
+                    return;
+                }
+                if (role === 'Staff') {
+                    const staff = defaultStaffList.find(s => s.email === username);
+                    if (staff && password === '123456@') {
+                        setCurrentUser({
+                            role: 'Staff',
+                            username: staff.email
+                        });
+                        return;
+                    } else {
+                        document.getElementById('authMsg').textContent = "Invalid staff credentials.";
+                        return;
+                    }
+                }
+                if (role === 'Director') {
+                    if (username === 'Makanga Henry' && password === '12345678@') {
+                        setCurrentUser({
+                            role: 'Director',
+                            username
+                        });
+                        return;
+                    } else {
+                        document.getElementById('authMsg').textContent = "Invalid director credentials.";
+                        return;
+                    }
+                }
+                if (role === 'Headteacher') {
+                    if (username === 'Nabaseka Hellen' && password === '123456789@') {
+                        setCurrentUser({
+                            role: 'Headteacher',
+                            username
+                        });
+                        return;
+                    } else {
+                        document.getElementById('authMsg').textContent = "Invalid headteacher credentials.";
+                        return;
+                    }
+                }
+            };
+
+            // Logout functionality
+            document.getElementById('logoutBtn').onclick = function() {
+                localStorage.removeItem('currentUser ');
+                location.reload();
+            };
+
+            // Dark mode toggle
+            document.getElementById('darkModeToggle').onclick = function() {
+                document.body.classList.toggle('bg-gray-800');
+                document.body.classList.toggle('text-white');
+            };
+
+            // Tab functionality
+            document.querySelectorAll('.tabBtn').forEach(button => {
+                button.onclick = function() {
+                    document.querySelectorAll('.tabSection').forEach(tab => tab.classList.add('hidden'));
+                    document.getElementById(this.dataset.tab).classList.remove('hidden');
+                };
+            });
+            // Show the first tab by default
+            if (document.querySelector('.tabBtn')) {
+                document.querySelector('.tabBtn').click();
+            }
+
+            // Show registration modal
+            document.getElementById('showRegisterBtn').onclick = function() {
+                document.getElementById('registerModal').classList.remove('hidden');
+                document.getElementById('registerMsg').textContent = '';
+            };
+            // Hide registration modal
+            document.getElementById('closeRegisterModal').onclick = function() {
+                document.getElementById('registerModal').classList.add('hidden');
+            };
+            // Handle registration
+            document.getElementById('registerBtn').onclick = function() {
+                const name = document.getElementById('regName').value.trim();
+                const email = document.getElementById('regEmail').value.trim();
+                const password = document.getElementById('regPassword').value.trim();
+                if (!name || !email || !password) {
+                    document.getElementById('registerMsg').textContent = 'Please fill all fields.';
+                    return;
+                }
+                // Add to staff list (for demo, just add to local array)
+                defaultStaffList.push({
+                    name,
+                    email
+                });
+                document.getElementById('registerModal').classList.add('hidden');
+                document.getElementById('registerMsg').textContent = '';
+                alert('Registration successful! You can now log in as staff.');
+            };
+
+            function showSendMessageSection() {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (user) {
+                    document.getElementById('sendMessageSection').classList.remove('hidden');
+                } else {
+                    document.getElementById('sendMessageSection').classList.add('hidden');
+                }
+            }
+            // Call after login and logout
+            showSendMessageSection();
+
+            // Store and render messages
+            function renderMessages() {
+                let messages = JSON.parse(localStorage.getItem('messages') || '[]');
+                document.getElementById('messagesList').innerHTML = messages.map(m =>
+                    `<div class="bg-gray-100 rounded p-2 mb-2">
+                    <div class="text-sm"><b>${m.sender}:</b> ${m.text}</div>
+                    <div class="text-xs text-gray-400">${m.time}</div>
+                </div>`
+                ).join('');
+            }
+            renderMessages();
+
+            document.getElementById('sendMessageBtn').onclick = function() {
+                const input = document.getElementById('messageInput');
+                const text = input.value.trim();
+                if (!text) return;
+                let messages = JSON.parse(localStorage.getItem('messages') || '[]');
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                messages.push({
+                    sender: user.username,
+                    text,
+                    time: new Date().toLocaleString()
+                });
+                localStorage.setItem('messages', JSON.stringify(messages));
+                input.value = '';
+                renderMessages();
+            };
+
+            // Store and render memos
+            function renderMemos() {
+                let memos = JSON.parse(localStorage.getItem('memos') || '[]');
+                document.getElementById('memosList').innerHTML = memos.map(m =>
+                    `<div class="bg-green-100 rounded p-2 mb-2">
+                    <div class="text-sm"><b>${m.sender}:</b> ${m.text}</div>
+                    <div class="text-xs text-gray-400">${m.time}</div>
+                </div>`
+                ).join('');
+            }
+            renderMemos();
+
+            document.getElementById('sendMemoBtn').onclick = function() {
+                const input = document.getElementById('memoInput');
+                const text = input.value.trim();
+                if (!text) return;
+                let memos = JSON.parse(localStorage.getItem('memos') || '[]');
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                memos.push({
+                    sender: user.username,
+                    text,
+                    time: new Date().toLocaleString()
+                });
+                localStorage.setItem('memos', JSON.stringify(memos));
+                input.value = '';
+                renderMemos();
+            };
+
+            // Store and render private messages
+            function renderPrivateMessages() {
+                let privateMessages = JSON.parse(localStorage.getItem('privateMessages') || '[]');
+                document.getElementById('privateMessagesList').innerHTML = privateMessages.map(m =>
+                    `<div class="bg-yellow-100 rounded p-2 mb-2">
+                    <div class="text-sm"><b>From:</b> ${m.sender} <b>To:</b> ${m.recipient}</div>
+                    <div class="text-sm">${m.text}</div>
+                    <div class="text-xs text-gray-400">${m.time}</div>
+                </div>`
+                ).join('');
+            }
+            renderPrivateMessages();
+
+            // Show meeting modal
+            document.getElementById('scheduleMeetingBtn').onclick = function() {
+                document.getElementById('meetingModal').classList.remove('hidden');
+                document.getElementById('meetingMsg').textContent = '';
+                // Set default date to today
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('meetingDate').value = today;
+            };
+            document.getElementById('closeMeetingModal').onclick = function() {
+                document.getElementById('meetingModal').classList.add('hidden');
+            };
+            document.getElementById('createMeetingBtn').onclick = function() {
+                const title = document.getElementById('meetingTitle').value.trim();
+                const date = document.getElementById('meetingDate').value;
+                const time = document.getElementById('meetingTime').value;
+                const description = document.getElementById('meetingDescription').value.trim();
+                if (!title || !date || !time || !description) {
+                    document.getElementById('meetingMsg').textContent = 'Please fill all fields.';
+                    return;
+                }
+                let meetings = JSON.parse(localStorage.getItem('meetings') || '[]');
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                meetings.push({
+                    title,
+                    date,
+                    time,
+                    description,
+                    organizer: user.username,
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem('meetings', JSON.stringify(meetings));
+                document.getElementById('meetingModal').classList.add('hidden');
+                renderMeetings();
+            };
+            // Render meetings
+            function renderMeetings() {
+                let meetings = JSON.parse(localStorage.getItem('meetings') || '[]');
+                document.getElementById('meetingsList').innerHTML = meetings.map(m =>
+                    `<div class=\"bg-purple-100 rounded p-3 mb-3\">\n            <div class=\"font-semibold text-lg\">${m.title}</div>\n            <div class=\"text-sm text-gray-700\">\n                <strong>Date:</strong> ${m.date} | <strong>Time:</strong> ${m.time}\n            </div>\n            <div class=\"text-sm text-gray-600 mt-1\">${m.description}</div>\n            <div class=\"text-xs text-gray-500 mt-1\">Organized by: ${m.organizer}</div>\n        </div>`
+                ).join('');
+            }
+            renderMeetings();
+
+            function renderDirectory() {
+                const staffList = defaultStaffList;
+                document.getElementById('directoryList').innerHTML = staffList.map(s =>
+                    `<div class="bg-gray-50 rounded p-2 mb-2 flex justify-between items-center">
+                    <div>
+                        <div class="font-semibold">${s.name}</div>
+                        <div class="text-sm text-gray-600">Email: <a href="mailto:${s.email}" class="text-blue-600">${s.email}</a></div>
+                    </div>
+                </div>`
+                ).join('');
+            }
+            renderDirectory();
+        </script>
+</body>
+
+</html>
