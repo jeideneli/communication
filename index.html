@@ -37,7 +37,7 @@
         <!-- Login Section -->
         <div id="authSection">
             <div class="mb-4">
-                <select id="roleSelect" class="border rounded p-2 w-full">
+                <select id="roleSelect" class="border rounded p-2 w-full" aria-label="Select your role">
                     <option value="Director">Director</option>
                     <option value="Headteacher">Headteacher</option>
                     <option value="Staff">Staff (Teacher)</option>
@@ -96,6 +96,13 @@
             </div>
 
             <div id="privateTab" class="tabSection hidden">
+                <div id="sendPrivateMessageSection" class="mb-4">
+                    <select id="privateMessageRecipient" class="border rounded p-2 w-full mb-2" aria-label="Select recipient">
+                        <option value="">Select recipient...</option>
+                    </select>
+                    <input id="privateMessageInput" class="border rounded p-2 w-full mb-2" placeholder="Type a private message..." />
+                    <button id="sendPrivateMessageBtn" class="bg-yellow-600 text-white px-4 py-2 rounded w-full hover:bg-yellow-700 transition-colors">Send Private Message</button>
+                </div>
                 <h2 class="font-bold mb-2">Private Messages</h2>
                 <div id="privateMessagesList"></div>
             </div>
@@ -118,304 +125,555 @@
             <div id="announcementsTab" class="tabSection hidden">
                 <div id="sendAnnouncementSection" class="mb-4">
                     <input id="announcementInput" class="border rounded p-2 w-full mb-2" placeholder="Type an announcement..." />
-                    <button id="sendAnnouncementBtn" class="bg-orange-600 text-white px-4 py-2 rounded w-full hover:bg-orange-700 transition-colors">Post Announcement</button> Set New Announcement
-                    </button </div>
-                    <h2 class="font-bold mb-2">Announcements</h2>
-                    <div id="announcementsList"></div>
+                    <button id="sendAnnouncementBtn" class="bg-orange-600 text-white px-4 py-2 rounded w-full hover:bg-orange-700 transition-colors">Post Announcement</button>
                 </div>
-
-                <div id="calendarTab" class="tabSection hidden">
-                    <h2 class="font-bold mb-2">Calendar & Events</h2>
-                    <div id="calendarList"></div>
-                </div>
+                <h2 class="font-bold mb-2">Announcements</h2>
+                <div id="announcementsList"></div>
             </div>
 
-            <!-- Modals -->
-            <!-- Add modals for private messages, registration, group messages, meetings, etc. here -->
-            <!-- Staff Registration Modal -->
-            <div id="registerModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
-                <div class="bg-white rounded-lg p-6 w-96">
-                    <h2 class="text-lg font-bold mb-4">Staff Registration</h2>
-                    <input id="regName" class="border rounded p-2 w-full mb-2" placeholder="Full Name" />
-                    <input id="regEmail" class="border rounded p-2 w-full mb-2" placeholder="Email" type="email" />
-                    <input id="regPassword" class="border rounded p-2 w-full mb-2" placeholder="Password" type="password" />
-                    <button id="registerBtn" class="bg-green-600 text-white px-4 py-2 rounded w-full hover:bg-green-700 transition-colors">Register</button>
-                    <button id="closeRegisterModal" class="mt-2 bg-gray-300 px-4 py-2 rounded w-full">Cancel</button>
-                    <div id="registerMsg" class="text-red-500 mt-2"></div>
+            <div id="calendarTab" class="tabSection hidden">
+                <div id="scheduleEventSection" class="mb-4">
+                    <button id="scheduleEventBtn" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">
+                        Schedule New Event
+                    </button>
                 </div>
-            </div>
-            <!-- Meeting Modal -->
-            <div id="meetingModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
-                <div class="bg-white rounded-lg p-6 w-96">
-                    <h2 class="text-lg font-bold mb-4">Schedule Meeting</h2>
-                    <input id="meetingTitle" class="border rounded p-2 w-full mb-2" placeholder="Meeting Title" />
-                    <input id="meetingDate" class="border rounded p-2 w-full mb-2" type="date" />
-                    <input id="meetingTime" class="border rounded p-2 w-full mb-2" type="time" />
-                    <textarea id="meetingDescription" class="border rounded p-2 w-full mb-2" rows="3" placeholder="Meeting Description"></textarea>
-                    <div class="flex justify-end space-x-2">
-                        <button id="createMeetingBtn" class="bg-purple-600 text-white px-4 py-2 rounded">Schedule Meeting</button>
-                        <button id="closeMeetingModal" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
-                    </div>
-                    <div id="meetingMsg" class="text-red-500 mt-2"></div>
-                </div>
+                <h2 class="font-bold mb-2">Calendar & Events</h2>
+                <div id="calendarList"></div>
             </div>
         </div>
 
-        <script>
-            // Sample data for demonstration
-            const defaultStaffList = [{
-                email: 'staff1@example.com',
-                name: 'Staff One'
-            }, {
-                email: 'staff2@example.com',
-                name: 'Staff Two'
-            }, ];
+        <!-- Modals -->
+        <!-- Add modals for private messages, registration, group messages, meetings, etc. here -->
+        <!-- Staff Registration Modal -->
+        <div id="registerModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+            <div class="bg-white rounded-lg p-6 w-96">
+                <h2 class="text-lg font-bold mb-4">Staff Registration</h2>
+                <input id="regName" class="border rounded p-2 w-full mb-2" placeholder="Full Name" />
+                <input id="regEmail" class="border rounded p-2 w-full mb-2" placeholder="Email" type="email" />
+                <input id="regPassword" class="border rounded p-2 w-full mb-2" placeholder="Password" type="password" />
+                <button id="registerBtn" class="bg-green-600 text-white px-4 py-2 rounded w-full hover:bg-green-700 transition-colors">Register</button>
+                <button id="closeRegisterModal" class="mt-2 bg-gray-300 px-4 py-2 rounded w-full">Cancel</button>
+                <div id="registerMsg" class="text-red-500 mt-2"></div>
+            </div>
+        </div>
+        <!-- Meeting Modal -->
+        <div id="meetingModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+            <div class="bg-white rounded-lg p-6 w-96">
+                <h2 class="text-lg font-bold mb-4">Schedule Meeting</h2>
+                <input id="meetingTitle" class="border rounded p-2 w-full mb-2" placeholder="Meeting Title" />
+                <input id="meetingDate" class="border rounded p-2 w-full mb-2" type="date" />
+                <input id="meetingTime" class="border rounded p-2 w-full mb-2" type="time" />
+                <textarea id="meetingDescription" class="border rounded p-2 w-full mb-2" rows="3" placeholder="Meeting Description"></textarea>
+                <div class="flex justify-end space-x-2">
+                    <button id="createMeetingBtn" class="bg-purple-600 text-white px-4 py-2 rounded">Schedule Meeting</button>
+                    <button id="closeMeetingModal" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+                </div>
+                <div id="meetingMsg" class="text-red-500 mt-2"></div>
+            </div>
+        </div>
 
-            // Function to set the current user
-            function setCurrentUser(user) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                document.getElementById('welcomeMsg').textContent = `Welcome, ${user.username}`;
-                document.getElementById('dashboard').classList.remove('hidden');
-                document.getElementById('authSection').classList.add('hidden');
+        <!-- Calendar Event Modal -->
+        <div id="calendarEventModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+            <div class="bg-white rounded-lg p-6 w-96">
+                <h2 class="text-lg font-bold mb-4">Schedule Calendar Event</h2>
+                <input id="eventTitle" class="border rounded p-2 w-full mb-2" placeholder="Event Title" />
+                <input id="eventDate" class="border rounded p-2 w-full mb-2" type="date" />
+                <input id="eventTime" class="border rounded p-2 w-full mb-2" type="time" />
+                <select id="eventType" class="border rounded p-2 w-full mb-2" aria-label="Select event type">
+                    <option value="meeting">Meeting</option>
+                    <option value="deadline">Deadline</option>
+                    <option value="holiday">Holiday</option>
+                    <option value="exam">Exam</option>
+                    <option value="event">General Event</option>
+                </select>
+                <textarea id="eventDescription" class="border rounded p-2 w-full mb-2" rows="3" placeholder="Event Description"></textarea>
+                <div class="flex justify-end space-x-2">
+                    <button id="createEventBtn" class="bg-indigo-600 text-white px-4 py-2 rounded">Schedule Event</button>
+                    <button id="closeCalendarEventModal" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+                </div>
+                <div id="calendarEventMsg" class="text-red-500 mt-2"></div>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        // Sample data for demonstration
+        let defaultStaffList = [{
+            email: 'staff1@example.com',
+            name: 'Staff One',
+            password: '123456@'
+        }, {
+            email: 'staff2@example.com',
+            name: 'Staff Two',
+            password: '123456@'
+        }];
+
+        // Load staff directory from localStorage if available
+        const savedStaffDirectory = localStorage.getItem('staffDirectory');
+        if (savedStaffDirectory) {
+            defaultStaffList = JSON.parse(savedStaffDirectory);
+        }
+
+        // Function to set the current user
+        function setCurrentUser(user) {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            document.getElementById('welcomeMsg').textContent = `Welcome, ${user.username}`;
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('authSection').classList.add('hidden');
+
+            // Show message section for all logged-in users
+            document.getElementById('sendMessageSection').classList.remove('hidden');
+
+            // Populate private message recipient dropdown
+            populateRecipientDropdown();
+        }
+
+        // Function to show toast notifications
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Login functionality
+        document.getElementById('loginBtn').onclick = function() {
+            const role = document.getElementById('roleSelect').value;
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+            if (!username || !password) {
+                document.getElementById('authMsg').textContent = "Please enter username and password.";
+                return;
             }
-
-            // Login functionality
-            document.getElementById('loginBtn').onclick = function() {
-                const role = document.getElementById('roleSelect').value;
-                const username = document.getElementById('usernameInput').value.trim();
-                const password = document.getElementById('passwordInput').value.trim();
-                if (!username || !password) {
-                    document.getElementById('authMsg').textContent = "Please enter username and password.";
+            if (role === 'Staff') {
+                const staff = defaultStaffList.find(s => s.email === username);
+                if (staff && password === staff.password) {
+                    setCurrentUser({
+                        role: 'Staff',
+                        username: staff.email
+                    });
                     return;
-                }
-                if (role === 'Staff') {
-                    const staff = defaultStaffList.find(s => s.email === username);
-                    if (staff && password === '123456@') {
-                        setCurrentUser({
-                            role: 'Staff',
-                            username: staff.email
-                        });
-                        return;
-                    } else {
-                        document.getElementById('authMsg').textContent = "Invalid staff credentials.";
-                        return;
-                    }
-                }
-                if (role === 'Director') {
-                    if (username === 'Makanga Henry' && password === '12345678@') {
-                        setCurrentUser({
-                            role: 'Director',
-                            username
-                        });
-                        return;
-                    } else {
-                        document.getElementById('authMsg').textContent = "Invalid director credentials.";
-                        return;
-                    }
-                }
-                if (role === 'Headteacher') {
-                    if (username === 'Nabaseka Hellen' && password === '123456789@') {
-                        setCurrentUser({
-                            role: 'Headteacher',
-                            username
-                        });
-                        return;
-                    } else {
-                        document.getElementById('authMsg').textContent = "Invalid headteacher credentials.";
-                        return;
-                    }
-                }
-            };
-
-            // Logout functionality
-            document.getElementById('logoutBtn').onclick = function() {
-                localStorage.removeItem('currentUser ');
-                location.reload();
-            };
-
-            // Dark mode toggle
-            document.getElementById('darkModeToggle').onclick = function() {
-                document.body.classList.toggle('bg-gray-800');
-                document.body.classList.toggle('text-white');
-            };
-
-            // Tab functionality
-            document.querySelectorAll('.tabBtn').forEach(button => {
-                button.onclick = function() {
-                    document.querySelectorAll('.tabSection').forEach(tab => tab.classList.add('hidden'));
-                    document.getElementById(this.dataset.tab).classList.remove('hidden');
-                };
-            });
-            // Show the first tab by default
-            if (document.querySelector('.tabBtn')) {
-                document.querySelector('.tabBtn').click();
-            }
-
-            // Show registration modal
-            document.getElementById('showRegisterBtn').onclick = function() {
-                document.getElementById('registerModal').classList.remove('hidden');
-                document.getElementById('registerMsg').textContent = '';
-            };
-            // Hide registration modal
-            document.getElementById('closeRegisterModal').onclick = function() {
-                document.getElementById('registerModal').classList.add('hidden');
-            };
-            // Handle registration
-            document.getElementById('registerBtn').onclick = function() {
-                const name = document.getElementById('regName').value.trim();
-                const email = document.getElementById('regEmail').value.trim();
-                const password = document.getElementById('regPassword').value.trim();
-                if (!name || !email || !password) {
-                    document.getElementById('registerMsg').textContent = 'Please fill all fields.';
-                    return;
-                }
-                // Add to staff list (for demo, just add to local array)
-                defaultStaffList.push({
-                    name,
-                    email
-                });
-                document.getElementById('registerModal').classList.add('hidden');
-                document.getElementById('registerMsg').textContent = '';
-                alert('Registration successful! You can now log in as staff.');
-            };
-
-            function showSendMessageSection() {
-                const user = JSON.parse(localStorage.getItem('currentUser'));
-                if (user) {
-                    document.getElementById('sendMessageSection').classList.remove('hidden');
                 } else {
-                    document.getElementById('sendMessageSection').classList.add('hidden');
+                    document.getElementById('authMsg').textContent = "Invalid staff credentials.";
+                    return;
                 }
             }
-            // Call after login and logout
-            showSendMessageSection();
+            if (role === 'Director') {
+                if (username === 'Makanga Henry' && password === '12345678@') {
+                    setCurrentUser({
+                        role: 'Director',
+                        username
+                    });
+                    return;
+                } else {
+                    document.getElementById('authMsg').textContent = "Invalid director credentials.";
+                    return;
+                }
+            }
+            if (role === 'Headteacher') {
+                if (username === 'Nabaseka Hellen' && password === '123456789@') {
+                    setCurrentUser({
+                        role: 'Headteacher',
+                        username
+                    });
+                    return;
+                } else {
+                    document.getElementById('authMsg').textContent = "Invalid headteacher credentials.";
+                    return;
+                }
+            }
+        };
 
-            // Store and render messages
-            function renderMessages() {
-                let messages = JSON.parse(localStorage.getItem('messages') || '[]');
-                document.getElementById('messagesList').innerHTML = messages.map(m =>
-                    `<div class="bg-gray-100 rounded p-2 mb-2">
+        // Logout functionality
+        document.getElementById('logoutBtn').onclick = function() {
+            localStorage.removeItem('currentUser');
+            location.reload();
+        };
+
+        // Dark mode toggle
+        document.getElementById('darkModeToggle').onclick = function() {
+            document.body.classList.toggle('bg-gray-800');
+            document.body.classList.toggle('text-white');
+        };
+
+        // Tab functionality
+        document.querySelectorAll('.tabBtn').forEach(button => {
+            button.onclick = function() {
+                document.querySelectorAll('.tabSection').forEach(tab => tab.classList.add('hidden'));
+                document.getElementById(this.dataset.tab).classList.remove('hidden');
+            };
+        });
+        // Show the first tab by default
+        if (document.querySelector('.tabBtn')) {
+            document.querySelector('.tabBtn').click();
+        }
+
+        // Show registration modal
+        document.getElementById('showRegisterBtn').onclick = function() {
+            document.getElementById('registerModal').classList.remove('hidden');
+            document.getElementById('registerMsg').textContent = '';
+        };
+        // Hide registration modal
+        document.getElementById('closeRegisterModal').onclick = function() {
+            document.getElementById('registerModal').classList.add('hidden');
+        };
+        // Handle registration
+        document.getElementById('registerBtn').onclick = function() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            if (!name || !email || !password) {
+                document.getElementById('registerMsg').textContent = 'Please fill all fields.';
+                return;
+            }
+
+            // Check if email already exists
+            const existingStaff = defaultStaffList.find(staff => staff.email === email);
+            if (existingStaff) {
+                document.getElementById('registerMsg').textContent = 'Email already registered.';
+                return;
+            }
+
+            // Add to staff list
+            const newStaff = {
+                name,
+                email,
+                password: password // Store password for login verification
+            };
+            defaultStaffList.push(newStaff);
+
+            // Save to localStorage for persistence
+            localStorage.setItem('staffDirectory', JSON.stringify(defaultStaffList));
+
+            // Clear form and close modal
+            document.getElementById('regName').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('registerModal').classList.add('hidden');
+            document.getElementById('registerMsg').textContent = '';
+
+            // Show success message
+            showToast('Registration successful! You can now log in as staff.');
+
+            // Update private message recipient dropdown
+            populateRecipientDropdown();
+        };
+
+        function showSendMessageSection() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                document.getElementById('sendMessageSection').classList.remove('hidden');
+            } else {
+                document.getElementById('sendMessageSection').classList.add('hidden');
+            }
+        }
+        // Call after login and logout
+        showSendMessageSection();
+
+        // Store and render messages
+        function renderMessages() {
+            let messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            document.getElementById('messagesList').innerHTML = messages.map(m =>
+                `<div class="bg-gray-100 rounded p-2 mb-2">
                     <div class="text-sm"><b>${m.sender}:</b> ${m.text}</div>
                     <div class="text-xs text-gray-400">${m.time}</div>
                 </div>`
-                ).join('');
-            }
+            ).join('');
+        }
+        renderMessages();
+
+        document.getElementById('sendMessageBtn').onclick = function() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text) return;
+            let messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            messages.push({
+                sender: user.username,
+                text,
+                time: new Date().toLocaleString()
+            });
+            localStorage.setItem('messages', JSON.stringify(messages));
+            input.value = '';
             renderMessages();
+        };
 
-            document.getElementById('sendMessageBtn').onclick = function() {
-                const input = document.getElementById('messageInput');
-                const text = input.value.trim();
-                if (!text) return;
-                let messages = JSON.parse(localStorage.getItem('messages') || '[]');
-                const user = JSON.parse(localStorage.getItem('currentUser'));
-                messages.push({
-                    sender: user.username,
-                    text,
-                    time: new Date().toLocaleString()
-                });
-                localStorage.setItem('messages', JSON.stringify(messages));
-                input.value = '';
-                renderMessages();
-            };
-
-            // Store and render memos
-            function renderMemos() {
-                let memos = JSON.parse(localStorage.getItem('memos') || '[]');
-                document.getElementById('memosList').innerHTML = memos.map(m =>
-                    `<div class="bg-green-100 rounded p-2 mb-2">
+        // Store and render memos
+        function renderMemos() {
+            let memos = JSON.parse(localStorage.getItem('memos') || '[]');
+            document.getElementById('memosList').innerHTML = memos.map(m =>
+                `<div class="bg-green-100 rounded p-2 mb-2">
                     <div class="text-sm"><b>${m.sender}:</b> ${m.text}</div>
                     <div class="text-xs text-gray-400">${m.time}</div>
                 </div>`
-                ).join('');
-            }
+            ).join('');
+        }
+        renderMemos();
+
+        document.getElementById('sendMemoBtn').onclick = function() {
+            const input = document.getElementById('memoInput');
+            const text = input.value.trim();
+            if (!text) return;
+            let memos = JSON.parse(localStorage.getItem('memos') || '[]');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            memos.push({
+                sender: user.username,
+                text,
+                time: new Date().toLocaleString()
+            });
+            localStorage.setItem('memos', JSON.stringify(memos));
+            input.value = '';
             renderMemos();
+        };
 
-            document.getElementById('sendMemoBtn').onclick = function() {
-                const input = document.getElementById('memoInput');
-                const text = input.value.trim();
-                if (!text) return;
-                let memos = JSON.parse(localStorage.getItem('memos') || '[]');
-                const user = JSON.parse(localStorage.getItem('currentUser'));
-                memos.push({
-                    sender: user.username,
-                    text,
-                    time: new Date().toLocaleString()
-                });
-                localStorage.setItem('memos', JSON.stringify(memos));
-                input.value = '';
-                renderMemos();
-            };
-
-            // Store and render private messages
-            function renderPrivateMessages() {
-                let privateMessages = JSON.parse(localStorage.getItem('privateMessages') || '[]');
-                document.getElementById('privateMessagesList').innerHTML = privateMessages.map(m =>
-                    `<div class="bg-yellow-100 rounded p-2 mb-2">
+        // Store and render private messages
+        function renderPrivateMessages() {
+            let privateMessages = JSON.parse(localStorage.getItem('privateMessages') || '[]');
+            document.getElementById('privateMessagesList').innerHTML = privateMessages.map(m =>
+                `<div class="bg-yellow-100 rounded p-2 mb-2">
                     <div class="text-sm"><b>From:</b> ${m.sender} <b>To:</b> ${m.recipient}</div>
                     <div class="text-sm">${m.text}</div>
                     <div class="text-xs text-gray-400">${m.time}</div>
                 </div>`
-                ).join('');
-            }
-            renderPrivateMessages();
+            ).join('');
+        }
 
-            // Show meeting modal
-            document.getElementById('scheduleMeetingBtn').onclick = function() {
-                document.getElementById('meetingModal').classList.remove('hidden');
-                document.getElementById('meetingMsg').textContent = '';
-                // Set default date to today
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('meetingDate').value = today;
-            };
-            document.getElementById('closeMeetingModal').onclick = function() {
-                document.getElementById('meetingModal').classList.add('hidden');
-            };
-            document.getElementById('createMeetingBtn').onclick = function() {
-                const title = document.getElementById('meetingTitle').value.trim();
-                const date = document.getElementById('meetingDate').value;
-                const time = document.getElementById('meetingTime').value;
-                const description = document.getElementById('meetingDescription').value.trim();
-                if (!title || !date || !time || !description) {
-                    document.getElementById('meetingMsg').textContent = 'Please fill all fields.';
-                    return;
+        // Populate private message recipient dropdown
+        function populateRecipientDropdown() {
+            const recipientSelect = document.getElementById('privateMessageRecipient');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+            // Clear existing options except the first one
+            recipientSelect.innerHTML = '<option value="">Select recipient...</option>';
+
+            // Add all staff members except the current user
+            defaultStaffList.forEach(staff => {
+                if (staff.email !== currentUser.username) {
+                    const option = document.createElement('option');
+                    option.value = staff.email;
+                    option.textContent = staff.name;
+                    recipientSelect.appendChild(option);
                 }
-                let meetings = JSON.parse(localStorage.getItem('meetings') || '[]');
-                const user = JSON.parse(localStorage.getItem('currentUser'));
-                meetings.push({
-                    title,
-                    date,
-                    time,
-                    description,
-                    organizer: user.username,
-                    createdAt: new Date().toISOString()
-                });
-                localStorage.setItem('meetings', JSON.stringify(meetings));
-                document.getElementById('meetingModal').classList.add('hidden');
-                renderMeetings();
-            };
-            // Render meetings
-            function renderMeetings() {
-                let meetings = JSON.parse(localStorage.getItem('meetings') || '[]');
-                document.getElementById('meetingsList').innerHTML = meetings.map(m =>
-                    `<div class=\"bg-purple-100 rounded p-3 mb-3\">\n            <div class=\"font-semibold text-lg\">${m.title}</div>\n            <div class=\"text-sm text-gray-700\">\n                <strong>Date:</strong> ${m.date} | <strong>Time:</strong> ${m.time}\n            </div>\n            <div class=\"text-sm text-gray-600 mt-1\">${m.description}</div>\n            <div class=\"text-xs text-gray-500 mt-1\">Organized by: ${m.organizer}</div>\n        </div>`
-                ).join('');
-            }
-            renderMeetings();
+            });
+        }
 
-            function renderDirectory() {
-                const staffList = defaultStaffList;
-                document.getElementById('directoryList').innerHTML = staffList.map(s =>
-                    `<div class="bg-gray-50 rounded p-2 mb-2 flex justify-between items-center">
+        // Send private message functionality
+        document.getElementById('sendPrivateMessageBtn').onclick = function() {
+            const recipient = document.getElementById('privateMessageRecipient').value;
+            const input = document.getElementById('privateMessageInput');
+            const text = input.value.trim();
+
+            if (!recipient) {
+                showToast('Please select a recipient.');
+                return;
+            }
+            if (!text) {
+                showToast('Please enter a message.');
+                return;
+            }
+
+            let privateMessages = JSON.parse(localStorage.getItem('privateMessages') || '[]');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+
+            privateMessages.push({
+                sender: user.username,
+                recipient: recipient,
+                text,
+                time: new Date().toLocaleString()
+            });
+
+            localStorage.setItem('privateMessages', JSON.stringify(privateMessages));
+            input.value = '';
+            document.getElementById('privateMessageRecipient').value = '';
+            renderPrivateMessages();
+            showToast('Private message sent successfully!');
+        };
+
+        renderPrivateMessages();
+
+        // Show meeting modal
+        document.getElementById('scheduleMeetingBtn').onclick = function() {
+            document.getElementById('meetingModal').classList.remove('hidden');
+            document.getElementById('meetingMsg').textContent = '';
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('meetingDate').value = today;
+        };
+        document.getElementById('closeMeetingModal').onclick = function() {
+            document.getElementById('meetingModal').classList.add('hidden');
+        };
+        document.getElementById('createMeetingBtn').onclick = function() {
+            const title = document.getElementById('meetingTitle').value.trim();
+            const date = document.getElementById('meetingDate').value;
+            const time = document.getElementById('meetingTime').value;
+            const description = document.getElementById('meetingDescription').value.trim();
+            if (!title || !date || !time || !description) {
+                document.getElementById('meetingMsg').textContent = 'Please fill all fields.';
+                return;
+            }
+            let meetings = JSON.parse(localStorage.getItem('meetings') || '[]');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            meetings.push({
+                title,
+                date,
+                time,
+                description,
+                organizer: user.username,
+                createdAt: new Date().toISOString()
+            });
+            localStorage.setItem('meetings', JSON.stringify(meetings));
+            document.getElementById('meetingModal').classList.add('hidden');
+            renderMeetings();
+        };
+        // Render meetings
+        function renderMeetings() {
+            let meetings = JSON.parse(localStorage.getItem('meetings') || '[]');
+            document.getElementById('meetingsList').innerHTML = meetings.map(m =>
+                `<div class=\"bg-purple-100 rounded p-3 mb-3\">\n            <div class=\"font-semibold text-lg\">${m.title}</div>\n            <div class=\"text-sm text-gray-700\">\n                <strong>Date:</strong> ${m.date} | <strong>Time:</strong> ${m.time}\n            </div>\n            <div class=\"text-sm text-gray-600 mt-1\">${m.description}</div>\n            <div class=\"text-xs text-gray-500 mt-1\">Organized by: ${m.organizer}</div>\n        </div>`
+            ).join('');
+        }
+        renderMeetings();
+
+        function renderDirectory() {
+            const staffList = defaultStaffList;
+            document.getElementById('directoryList').innerHTML = staffList.map(s =>
+                `<div class="bg-gray-50 rounded p-2 mb-2 flex justify-between items-center">
                     <div>
                         <div class="font-semibold">${s.name}</div>
                         <div class="text-sm text-gray-600">Email: <a href="mailto:${s.email}" class="text-blue-600">${s.email}</a></div>
                     </div>
                 </div>`
-                ).join('');
+            ).join('');
+        }
+        renderDirectory();
+
+        // Store and render announcements
+        function renderAnnouncements() {
+            let announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
+            document.getElementById('announcementsList').innerHTML = announcements.map(a =>
+                `<div class="bg-orange-100 rounded p-2 mb-2">
+                    <div class="text-sm"><b>${a.sender}:</b> ${a.text}</div>
+                    <div class="text-xs text-gray-400">${a.time}</div>
+                </div>`
+            ).join('');
+        }
+        renderAnnouncements();
+
+        document.getElementById('sendAnnouncementBtn').onclick = function() {
+            const input = document.getElementById('announcementInput');
+            const text = input.value.trim();
+            if (!text) return;
+            let announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            announcements.push({
+                sender: user.username,
+                text,
+                time: new Date().toLocaleString()
+            });
+            localStorage.setItem('announcements', JSON.stringify(announcements));
+            input.value = '';
+            renderAnnouncements();
+        };
+
+        // Calendar Event functionality
+        document.getElementById('scheduleEventBtn').onclick = function() {
+            document.getElementById('calendarEventModal').classList.remove('hidden');
+            document.getElementById('calendarEventMsg').textContent = '';
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('eventDate').value = today;
+        };
+
+        document.getElementById('closeCalendarEventModal').onclick = function() {
+            document.getElementById('calendarEventModal').classList.add('hidden');
+        };
+
+        document.getElementById('createEventBtn').onclick = function() {
+            const title = document.getElementById('eventTitle').value.trim();
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const type = document.getElementById('eventType').value;
+            const description = document.getElementById('eventDescription').value.trim();
+
+            if (!title || !date || !time || !description) {
+                document.getElementById('calendarEventMsg').textContent = 'Please fill all fields.';
+                return;
             }
-            renderDirectory();
-        </script>
+
+            let calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+
+            calendarEvents.push({
+                title,
+                date,
+                time,
+                type,
+                description,
+                organizer: user.username,
+                createdAt: new Date().toISOString()
+            });
+
+            localStorage.setItem('calendarEvents', JSON.stringify(calendarEvents));
+            document.getElementById('calendarEventModal').classList.add('hidden');
+            renderCalendarEvents();
+            showToast('Event scheduled successfully!');
+        };
+
+        // Render calendar events
+        function renderCalendarEvents() {
+            let calendarEvents = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
+
+            // Sort events by date and time
+            calendarEvents.sort((a, b) => {
+                const dateA = new Date(`${a.date}T${a.time}`);
+                const dateB = new Date(`${b.date}T${b.time}`);
+                return dateA - dateB;
+            });
+
+            document.getElementById('calendarList').innerHTML = calendarEvents.map(event => {
+                const eventTypeColors = {
+                    meeting: 'bg-blue-100 border-blue-300',
+                    deadline: 'bg-red-100 border-red-300',
+                    holiday: 'bg-green-100 border-green-300',
+                    exam: 'bg-purple-100 border-purple-300',
+                    event: 'bg-gray-100 border-gray-300'
+                };
+
+                const eventTypeLabels = {
+                    meeting: 'Meeting',
+                    deadline: 'Deadline',
+                    holiday: 'Holiday',
+                    exam: 'Exam',
+                    event: 'Event'
+                };
+
+                const colorClass = eventTypeColors[event.type] || 'bg-gray-100 border-gray-300';
+                const typeLabel = eventTypeLabels[event.type] || 'Event';
+
+                return `
+                    <div class="${colorClass} rounded p-3 mb-3 border-l-4">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="font-semibold text-lg">${event.title}</div>
+                                <div class="text-sm text-gray-700">
+                                    <strong>Date:</strong> ${event.date} | <strong>Time:</strong> ${event.time}
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">${event.description}</div>
+                                <div class="text-xs text-gray-500 mt-1">Organized by: ${event.organizer}</div>
+                            </div>
+                            <span class="bg-white px-2 py-1 rounded text-xs font-semibold text-gray-700">
+                                ${typeLabel}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        renderCalendarEvents();
+    </script>
 </body>
 
 </html>
