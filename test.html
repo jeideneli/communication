@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Test - Maria Theresa Communication</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow-lg">
+        <h1 class="text-2xl font-bold mb-4">Communication System Test</h1>
+
+        <!-- Login Section -->
+        <div id="loginSection" class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Login</h2>
+            <select id="roleSelect" class="border rounded p-2 mb-2 w-full">
+                <option value="Director">Director</option>
+                <option value="Headteacher">Headteacher</option>
+                <option value="Staff">Staff</option>
+            </select>
+            <input id="usernameInput" class="border rounded p-2 mb-2 w-full" placeholder="Username/Email" />
+            <input id="passwordInput" type="password" class="border rounded p-2 mb-2 w-full" placeholder="Password" />
+            <button id="loginBtn" class="bg-blue-600 text-white px-4 py-2 rounded">Login</button>
+            <div id="loginMsg" class="text-red-500 mt-2"></div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <span id="welcomeMsg"></span>
+                <button id="logoutBtn" class="text-red-500">Logout</button>
+            </div>
+
+            <!-- Messages Section -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-2">Send Message</h3>
+                <input id="messageInput" class="border rounded p-2 mb-2 w-full" placeholder="Type a message..." />
+                <button id="sendMessageBtn" class="bg-green-600 text-white px-4 py-2 rounded">Send Message</button>
+            </div>
+
+            <!-- Messages List -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-2">Messages</h3>
+                <div id="messagesList" class="space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let currentUser = null;
+
+        // Login
+        document.getElementById('loginBtn').onclick = async function() {
+            const role = document.getElementById('roleSelect').value;
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+
+            if (!username || !password) {
+                document.getElementById('loginMsg').textContent = "Please enter username and password.";
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        role,
+                        username,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentUser = data.user;
+                    document.getElementById('welcomeMsg').textContent = `Welcome, ${currentUser.username}`;
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('loginMsg').textContent = '';
+                    loadMessages();
+                } else {
+                    document.getElementById('loginMsg').textContent = data.error || "Login failed.";
+                }
+            } catch (error) {
+                document.getElementById('loginMsg').textContent = "Network error. Please try again.";
+                console.error('Login error:', error);
+            }
+        };
+
+        // Logout
+        document.getElementById('logoutBtn').onclick = function() {
+            currentUser = null;
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('passwordInput').value = '';
+        };
+
+        // Send Message
+        document.getElementById('sendMessageBtn').onclick = async function() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sender: currentUser.username,
+                        text
+                    })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    loadMessages();
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Error sending message. Please try again.');
+            }
+        };
+
+        // Load Messages
+        async function loadMessages() {
+            try {
+                const response = await fetch(`${API_BASE}/api/messages`);
+                const messages = await response.json();
+
+                document.getElementById('messagesList').innerHTML = messages.map(m =>
+                    `<div class="bg-gray-100 rounded p-2">
+                        <div><strong>${m.sender}:</strong> ${m.text}</div>
+                        <div class="text-xs text-gray-500">${m.time}</div>
+                    </div>`
+                ).join('');
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+
+        // Test API connection
+        async function testConnection() {
+            try {
+                const response = await fetch(`${API_BASE}/api/data`);
+                if (response.ok) {
+                    console.log('✅ API connection successful');
+                } else {
+                    console.log('❌ API connection failed');
+                }
+            } catch (error) {
+                console.log('❌ Network error:', error);
+            }
+        }
+
+        // Test connection on page load
+        testConnection();
+    </script>
+</body>
+
+</html>

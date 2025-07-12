@@ -236,7 +236,8 @@
 
         // Function to set the current user
         function setCurrentUser(user) {
-            localStorage.setItem('currentUser', JSON.stringify(user));
+            // Store user in sessionStorage for this browser session
+            sessionStorage.setItem('currentUser', JSON.stringify(user));
             document.getElementById('welcomeMsg').textContent = `Welcome, ${user.username}`;
             document.getElementById('dashboard').classList.remove('hidden');
             document.getElementById('authSection').classList.add('hidden');
@@ -390,7 +391,7 @@
         };
 
         function showSendMessageSection() {
-            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const user = JSON.parse(sessionStorage.getItem('currentUser'));
             if (user) {
                 document.getElementById('sendMessageSection').classList.remove('hidden');
             } else {
@@ -422,7 +423,7 @@
             if (!text) return;
 
             try {
-                const user = JSON.parse(localStorage.getItem('currentUser'));
+                const user = JSON.parse(sessionStorage.getItem('currentUser'));
                 const response = await fetch(`${API_BASE}/api/messages`, {
                     method: 'POST',
                     headers: {
@@ -445,31 +446,47 @@
         };
 
         // Store and render memos
-        function renderMemos() {
-            let memos = JSON.parse(localStorage.getItem('memos') || '[]');
-            document.getElementById('memosList').innerHTML = memos.map(m =>
-                `<div class="bg-green-100 rounded p-2 mb-2">
-                    <div class="text-sm"><b>${m.sender}:</b> ${m.text}</div>
-                    <div class="text-xs text-gray-400">${m.time}</div>
-                </div>`
-            ).join('');
+        async function renderMemos() {
+            try {
+                const response = await fetch(`${API_BASE}/api/memos`);
+                const memos = await response.json();
+                document.getElementById('memosList').innerHTML = memos.map(m =>
+                    `<div class="bg-green-100 rounded p-2 mb-2">
+                        <div class="text-sm"><b>${m.sender}:</b> ${m.text}</div>
+                        <div class="text-xs text-gray-400">${m.time}</div>
+                    </div>`
+                ).join('');
+            } catch (error) {
+                console.error('Error loading memos:', error);
+            }
         }
-        renderMemos();
 
-        document.getElementById('sendMemoBtn').onclick = function() {
+        document.getElementById('sendMemoBtn').onclick = async function() {
             const input = document.getElementById('memoInput');
             const text = input.value.trim();
             if (!text) return;
-            let memos = JSON.parse(localStorage.getItem('memos') || '[]');
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            memos.push({
-                sender: user.username,
-                text,
-                time: new Date().toLocaleString()
-            });
-            localStorage.setItem('memos', JSON.stringify(memos));
-            input.value = '';
-            renderMemos();
+
+            try {
+                const user = JSON.parse(sessionStorage.getItem('currentUser'));
+                const response = await fetch(`${API_BASE}/api/memos`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        sender: user.username,
+                        text
+                    })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    await renderMemos();
+                }
+            } catch (error) {
+                console.error('Error sending memo:', error);
+                showToast('Error sending memo. Please try again.');
+            }
         };
 
         // Store and render private messages
@@ -487,14 +504,14 @@
         // Populate private message recipient dropdown
         function populateRecipientDropdown() {
             const recipientSelect = document.getElementById('privateMessageRecipient');
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
 
             // Clear existing options except the first one
             recipientSelect.innerHTML = '<option value="">Select recipient...</option>';
 
             // Add all staff members except the current user
             defaultStaffList.forEach(staff => {
-                if (staff.email !== currentUser.username) {
+                if (staff.email !== currentUser ? .username) {
                     const option = document.createElement('option');
                     option.value = staff.email;
                     option.textContent = staff.name;
@@ -504,7 +521,7 @@
         }
 
         // Send private message functionality
-        document.getElementById('sendPrivateMessageBtn').onclick = function() {
+        document.getElementById('sendPrivateMessageBtn').onclick = async function() {
             const recipient = document.getElementById('privateMessageRecipient').value;
             const input = document.getElementById('privateMessageInput');
             const text = input.value.trim();
@@ -518,21 +535,30 @@
                 return;
             }
 
-            let privateMessages = JSON.parse(localStorage.getItem('privateMessages') || '[]');
-            const user = JSON.parse(localStorage.getItem('currentUser'));
+            try {
+                const user = JSON.parse(sessionStorage.getItem('currentUser'));
+                const response = await fetch(`${API_BASE}/api/private-messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        sender: user.username,
+                        recipient: recipient,
+                        text
+                    })
+                });
 
-            privateMessages.push({
-                sender: user.username,
-                recipient: recipient,
-                text,
-                time: new Date().toLocaleString()
-            });
-
-            localStorage.setItem('privateMessages', JSON.stringify(privateMessages));
-            input.value = '';
-            document.getElementById('privateMessageRecipient').value = '';
-            renderPrivateMessages();
-            showToast('Private message sent successfully!');
+                if (response.ok) {
+                    input.value = '';
+                    document.getElementById('privateMessageRecipient').value = '';
+                    await renderPrivateMessages();
+                    showToast('Private message sent successfully!');
+                }
+            } catch (error) {
+                console.error('Error sending private message:', error);
+                showToast('Error sending private message. Please try again.');
+            }
         };
 
         renderPrivateMessages();
