@@ -197,6 +197,9 @@
     </div>
 
     <script>
+        // API base URL
+        const API_BASE = window.location.origin;
+
         // Sample data for demonstration
         let defaultStaffList = [{
             email: 'staff1@example.com',
@@ -208,11 +211,28 @@
             password: '123456@'
         }];
 
-        // Load staff directory from localStorage if available
-        const savedStaffDirectory = localStorage.getItem('staffDirectory');
-        if (savedStaffDirectory) {
-            defaultStaffList = JSON.parse(savedStaffDirectory);
+        // Load data from server
+        async function loadDataFromServer() {
+            try {
+                const response = await fetch(`${API_BASE}/api/data`);
+                const data = await response.json();
+                defaultStaffList = data.users;
+
+                // Render all data
+                renderMessages();
+                renderMemos();
+                renderPrivateMessages();
+                renderMeetings();
+                renderDirectory();
+                renderAnnouncements();
+                renderCalendarEvents();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
         }
+
+        // Load data on page load
+        loadDataFromServer();
 
         // Function to set the current user
         function setCurrentUser(user) {
@@ -239,56 +259,55 @@
         }
 
         // Login functionality
-        document.getElementById('loginBtn').onclick = function() {
+        document.getElementById('loginBtn').onclick = async function() {
             const role = document.getElementById('roleSelect').value;
             const username = document.getElementById('usernameInput').value.trim();
             const password = document.getElementById('passwordInput').value.trim();
+
             if (!username || !password) {
                 document.getElementById('authMsg').textContent = "Please enter username and password.";
                 return;
             }
-            if (role === 'Staff') {
-                const staff = defaultStaffList.find(s => s.email === username);
-                if (staff && password === staff.password) {
-                    setCurrentUser({
-                        role: 'Staff',
-                        username: staff.email
-                    });
-                    return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        role,
+                        username,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    setCurrentUser(data.user);
+                    document.getElementById('authMsg').textContent = '';
                 } else {
-                    document.getElementById('authMsg').textContent = "Invalid staff credentials.";
-                    return;
+                    document.getElementById('authMsg').textContent = data.error || "Login failed.";
                 }
-            }
-            if (role === 'Director') {
-                if (username === 'Makanga Henry' && password === '12345678@') {
-                    setCurrentUser({
-                        role: 'Director',
-                        username
-                    });
-                    return;
-                } else {
-                    document.getElementById('authMsg').textContent = "Invalid director credentials.";
-                    return;
-                }
-            }
-            if (role === 'Headteacher') {
-                if (username === 'Nabaseka Hellen' && password === '123456789@') {
-                    setCurrentUser({
-                        role: 'Headteacher',
-                        username
-                    });
-                    return;
-                } else {
-                    document.getElementById('authMsg').textContent = "Invalid headteacher credentials.";
-                    return;
-                }
+            } catch (error) {
+                document.getElementById('authMsg').textContent = "Network error. Please try again.";
+                console.error('Login error:', error);
             }
         };
 
         // Logout functionality
-        document.getElementById('logoutBtn').onclick = function() {
-            localStorage.removeItem('currentUser');
+        document.getElementById('logoutBtn').onclick = async function() {
+            try {
+                await fetch(`${API_BASE}/api/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
             location.reload();
         };
 
@@ -320,45 +339,54 @@
             document.getElementById('registerModal').classList.add('hidden');
         };
         // Handle registration
-        document.getElementById('registerBtn').onclick = function() {
+        document.getElementById('registerBtn').onclick = async function() {
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value.trim();
+
             if (!name || !email || !password) {
                 document.getElementById('registerMsg').textContent = 'Please fill all fields.';
                 return;
             }
 
-            // Check if email already exists
-            const existingStaff = defaultStaffList.find(staff => staff.email === email);
-            if (existingStaff) {
-                document.getElementById('registerMsg').textContent = 'Email already registered.';
-                return;
+            try {
+                const response = await fetch(`${API_BASE}/api/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Clear form and close modal
+                    document.getElementById('regName').value = '';
+                    document.getElementById('regEmail').value = '';
+                    document.getElementById('regPassword').value = '';
+                    document.getElementById('registerModal').classList.add('hidden');
+                    document.getElementById('registerMsg').textContent = '';
+
+                    // Reload data from server
+                    await loadDataFromServer();
+
+                    // Show success message
+                    showToast('Registration successful! You can now log in as staff.');
+
+                    // Update private message recipient dropdown
+                    populateRecipientDropdown();
+                } else {
+                    document.getElementById('registerMsg').textContent = data.error || 'Registration failed.';
+                }
+            } catch (error) {
+                document.getElementById('registerMsg').textContent = 'Network error. Please try again.';
+                console.error('Registration error:', error);
             }
-
-            // Add to staff list
-            const newStaff = {
-                name,
-                email,
-                password: password // Store password for login verification
-            };
-            defaultStaffList.push(newStaff);
-
-            // Save to localStorage for persistence
-            localStorage.setItem('staffDirectory', JSON.stringify(defaultStaffList));
-
-            // Clear form and close modal
-            document.getElementById('regName').value = '';
-            document.getElementById('regEmail').value = '';
-            document.getElementById('regPassword').value = '';
-            document.getElementById('registerModal').classList.add('hidden');
-            document.getElementById('registerMsg').textContent = '';
-
-            // Show success message
-            showToast('Registration successful! You can now log in as staff.');
-
-            // Update private message recipient dropdown
-            populateRecipientDropdown();
         };
 
         function showSendMessageSection() {
@@ -373,31 +401,47 @@
         showSendMessageSection();
 
         // Store and render messages
-        function renderMessages() {
-            let messages = JSON.parse(localStorage.getItem('messages') || '[]');
-            document.getElementById('messagesList').innerHTML = messages.map(m =>
-                `<div class="bg-gray-100 rounded p-2 mb-2">
-                    <div class="text-sm"><b>${m.sender}:</b> ${m.text}</div>
-                    <div class="text-xs text-gray-400">${m.time}</div>
-                </div>`
-            ).join('');
+        async function renderMessages() {
+            try {
+                const response = await fetch(`${API_BASE}/api/messages`);
+                const messages = await response.json();
+                document.getElementById('messagesList').innerHTML = messages.map(m =>
+                    `<div class="bg-gray-100 rounded p-2 mb-2">
+                        <div class="text-sm"><b>${m.sender}:</b> ${m.text}</div>
+                        <div class="text-xs text-gray-400">${m.time}</div>
+                    </div>`
+                ).join('');
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
         }
-        renderMessages();
 
-        document.getElementById('sendMessageBtn').onclick = function() {
+        document.getElementById('sendMessageBtn').onclick = async function() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             if (!text) return;
-            let messages = JSON.parse(localStorage.getItem('messages') || '[]');
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            messages.push({
-                sender: user.username,
-                text,
-                time: new Date().toLocaleString()
-            });
-            localStorage.setItem('messages', JSON.stringify(messages));
-            input.value = '';
-            renderMessages();
+
+            try {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                const response = await fetch(`${API_BASE}/api/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        sender: user.username,
+                        text
+                    })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    await renderMessages();
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showToast('Error sending message. Please try again.');
+            }
         };
 
         // Store and render memos
