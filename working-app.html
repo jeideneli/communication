@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maria Theresa Communication - Working Version</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-3xl font-bold text-center mb-6 text-blue-700">
+                Maria Theresa Communication System
+            </h1>
+
+            <!-- Login Section -->
+            <div id="loginSection">
+                <h2 class="text-xl font-semibold mb-4">Login</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Role:</label>
+                        <select id="roleSelect" class="w-full border rounded p-2">
+                            <option value="Director">Director</option>
+                            <option value="Headteacher">Headteacher</option>
+                            <option value="Staff">Staff</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Username/Email:</label>
+                        <input id="usernameInput" type="text" class="w-full border rounded p-2" placeholder="Enter username or email">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Password:</label>
+                        <input id="passwordInput" type="password" class="w-full border rounded p-2" placeholder="Enter password">
+                    </div>
+                    <button id="loginBtn" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                        Login
+                    </button>
+                    <button id="showRegisterBtn" class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">Register as Staff</button>
+                    <div id="loginMsg" class="text-red-500 text-sm"></div>
+                </div>
+            </div>
+
+            <!-- Register Modal -->
+            <div id="registerModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+                <div class="bg-white rounded-lg p-6 w-96">
+                    <h2 class="text-lg font-bold mb-4">Staff Registration</h2>
+                    <input id="regName" class="border rounded p-2 w-full mb-2" placeholder="Full Name" />
+                    <input id="regEmail" class="border rounded p-2 w-full mb-2" placeholder="Email" type="email" />
+                    <input id="regPassword" class="border rounded p-2 w-full mb-2" placeholder="Password" type="password" />
+                    <button id="registerBtn" class="bg-green-600 text-white px-4 py-2 rounded w-full hover:bg-green-700 transition-colors">Register</button>
+                    <button id="closeRegisterModal" class="mt-2 bg-gray-300 px-4 py-2 rounded w-full">Cancel</button>
+                    <div id="registerMsg" class="text-red-500 mt-2"></div>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="dashboard" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="welcomeMsg" class="text-xl font-semibold"></h2>
+                    <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                        Logout
+                    </button>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex space-x-2 mb-4">
+                    <button class="tabBtn bg-blue-200 px-3 py-1 rounded" data-tab="messagesTab">Messages</button>
+                    <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="memosTab">Memos</button>
+                    <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="privateTab">Private Messages</button>
+                    <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="directoryTab">Staff Directory</button>
+                    <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="calendarTab">Calendar</button>
+                    <button class="tabBtn bg-gray-200 px-3 py-1 rounded" data-tab="announcementsTab">Announcements</button>
+                </div>
+
+                <!-- Messages Tab -->
+                <div id="messagesTab" class="tabSection">
+                    <div class="mb-4">
+                        <input id="messageInput" class="w-full border rounded p-2 mb-2" placeholder="Type a message to all staff...">
+                        <button id="sendMessageBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                            Send Message
+                        </button>
+                    </div>
+                    <h3 class="font-semibold mb-2">Messages</h3>
+                    <div id="messagesList" class="space-y-2"></div>
+                </div>
+
+                <!-- Memos Tab -->
+                <div id="memosTab" class="tabSection hidden">
+                    <div class="mb-4">
+                        <input id="memoInput" class="w-full border rounded p-2 mb-2" placeholder="Type a memo to all staff...">
+                        <button id="sendMemoBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                            Send Memo
+                        </button>
+                    </div>
+                    <h3 class="font-semibold mb-2">Memos</h3>
+                    <div id="memosList" class="space-y-2"></div>
+                </div>
+
+                <!-- Private Messages Tab -->
+                <div id="privateTab" class="tabSection hidden">
+                    <div class="mb-4">
+                        <select id="privateRecipient" class="w-full border rounded p-2 mb-2">
+                            <option value="">Select recipient...</option>
+                        </select>
+                        <input id="privateMessageInput" class="w-full border rounded p-2 mb-2" placeholder="Type a private message...">
+                        <button id="sendPrivateMessageBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+                            Send Private Message
+                        </button>
+                    </div>
+                    <h3 class="font-semibold mb-2">Private Messages</h3>
+                    <div id="privateMessagesList" class="space-y-2"></div>
+                </div>
+
+                <!-- Staff Directory Tab -->
+                <div id="directoryTab" class="tabSection hidden">
+                    <h3 class="font-semibold mb-2">Staff Directory</h3>
+                    <div id="directoryList" class="space-y-2"></div>
+                </div>
+
+                <!-- Calendar Tab -->
+                <div id="calendarTab" class="tabSection hidden">
+                    <div class="mb-4">
+                        <button id="showCalendarEventModal" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Add Event</button>
+                    </div>
+                    <h3 class="font-semibold mb-2">Calendar Events</h3>
+                    <div id="calendarList" class="space-y-2"></div>
+                </div>
+
+                <!-- Announcements Tab -->
+                <div id="announcementsTab" class="tabSection hidden">
+                    <div class="mb-4">
+                        <input id="announcementInput" class="w-full border rounded p-2 mb-2" placeholder="Type an announcement...">
+                        <button id="sendAnnouncementBtn" class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700">
+                            Post Announcement
+                        </button>
+                    </div>
+                    <h3 class="font-semibold mb-2">Announcements</h3>
+                    <div id="announcementsList" class="space-y-2"></div>
+                </div>
+
+                <!-- Calendar Event Modal -->
+                <div id="calendarEventModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+                    <div class="bg-white rounded-lg p-6 w-96">
+                        <h2 class="text-lg font-bold mb-4">Add Calendar Event</h2>
+                        <input id="eventTitle" class="border rounded p-2 w-full mb-2" placeholder="Event Title" />
+                        <input id="eventDate" class="border rounded p-2 w-full mb-2" type="date" />
+                        <input id="eventTime" class="border rounded p-2 w-full mb-2" type="time" />
+                        <textarea id="eventDescription" class="border rounded p-2 w-full mb-2" rows="3" placeholder="Event Description"></textarea>
+                        <div class="flex justify-end space-x-2">
+                            <button id="createEventBtn" class="bg-indigo-600 text-white px-4 py-2 rounded">Add Event</button>
+                            <button id="closeCalendarEventModal" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+                        </div>
+                        <div id="calendarEventMsg" class="text-red-500 mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let currentUser = null;
+        // Socket.IO setup
+        const socket = io();
+
+        // Listen for new messages in real time
+        socket.on('newMessage', function(message) {
+            loadMessages(); // Reload messages instantly
+        });
+
+        // Tab functionality
+        document.querySelectorAll('.tabBtn').forEach(button => {
+            button.onclick = function() {
+                // Update tab buttons
+                document.querySelectorAll('.tabBtn').forEach(btn => {
+                    btn.classList.remove('bg-blue-200');
+                    btn.classList.add('bg-gray-200');
+                });
+                this.classList.remove('bg-gray-200');
+                this.classList.add('bg-blue-200');
+
+                // Show selected tab
+                document.querySelectorAll('.tabSection').forEach(tab => {
+                    tab.classList.add('hidden');
+                });
+                document.getElementById(this.dataset.tab).classList.remove('hidden');
+            };
+        });
+
+        // Login
+        document.getElementById('loginBtn').onclick = async function() {
+            const role = document.getElementById('roleSelect').value;
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+
+            if (!username || !password) {
+                document.getElementById('loginMsg').textContent = "Please enter username and password.";
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        role,
+                        username,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentUser = data.user;
+                    document.getElementById('welcomeMsg').textContent = `Welcome, ${currentUser.username}`;
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('loginMsg').textContent = '';
+
+                    // Load initial data
+                    loadMessages();
+                    loadMemos();
+                    loadAnnouncements();
+                } else {
+                    document.getElementById('loginMsg').textContent = data.error || "Login failed.";
+                }
+            } catch (error) {
+                document.getElementById('loginMsg').textContent = "Network error. Please try again.";
+                console.error('Login error:', error);
+            }
+        };
+
+        // Logout
+        document.getElementById('logoutBtn').onclick = function() {
+            currentUser = null;
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('passwordInput').value = '';
+        };
+
+        // Send Message
+        document.getElementById('sendMessageBtn').onclick = async function() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sender: currentUser.username,
+                        text
+                    })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    loadMessages();
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Error sending message. Please try again.');
+            }
+        };
+
+        // Send Memo
+        document.getElementById('sendMemoBtn').onclick = async function() {
+            const input = document.getElementById('memoInput');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/memos`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sender: currentUser.username,
+                        text
+                    })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    loadMemos();
+                }
+            } catch (error) {
+                console.error('Error sending memo:', error);
+                alert('Error sending memo. Please try again.');
+            }
+        };
+
+        // Send Announcement
+        document.getElementById('sendAnnouncementBtn').onclick = async function() {
+            const input = document.getElementById('announcementInput');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/announcements`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sender: currentUser.username,
+                        text
+                    })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    loadAnnouncements();
+                }
+            } catch (error) {
+                console.error('Error sending announcement:', error);
+                alert('Error sending announcement. Please try again.');
+            }
+        };
+
+        // Load Messages
+        async function loadMessages() {
+            try {
+                const response = await fetch(`${API_BASE}/api/messages`);
+                const messages = await response.json();
+
+                document.getElementById('messagesList').innerHTML = messages.map(m =>
+                    `<div class="bg-gray-100 rounded p-3">
+                        <div class="font-semibold">${m.sender}</div>
+                        <div>${m.text}</div>
+                        <div class="text-xs text-gray-500 mt-1">${m.time}</div>
+                    </div>`
+                ).join('');
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+
+        // Load Memos
+        async function loadMemos() {
+            try {
+                const response = await fetch(`${API_BASE}/api/memos`);
+                const memos = await response.json();
+
+                document.getElementById('memosList').innerHTML = memos.map(m =>
+                    `<div class="bg-green-100 rounded p-3">
+                        <div class="font-semibold">${m.sender}</div>
+                        <div>${m.text}</div>
+                        <div class="text-xs text-gray-500 mt-1">${m.time}</div>
+                    </div>`
+                ).join('');
+            } catch (error) {
+                console.error('Error loading memos:', error);
+            }
+        }
+
+        // Load Announcements
+        async function loadAnnouncements() {
+            try {
+                const response = await fetch(`${API_BASE}/api/announcements`);
+                const announcements = await response.json();
+
+                document.getElementById('announcementsList').innerHTML = announcements.map(a =>
+                    `<div class="bg-orange-100 rounded p-3">
+                        <div class="font-semibold">${a.sender}</div>
+                        <div>${a.text}</div>
+                        <div class="text-xs text-gray-500 mt-1">${a.time}</div>
+                    </div>`
+                ).join('');
+            } catch (error) {
+                console.error('Error loading announcements:', error);
+            }
+        }
+
+        // Test API connection on load
+        async function testConnection() {
+            try {
+                const response = await fetch(`${API_BASE}/api/data`);
+                if (response.ok) {
+                    console.log('✅ API connection successful');
+                } else {
+                    console.log('❌ API connection failed');
+                }
+            } catch (error) {
+                console.log('❌ Network error:', error);
+            }
+        }
+
+        // Show registration modal
+        document.getElementById('showRegisterBtn').onclick = function() {
+            document.getElementById('registerModal').classList.remove('hidden');
+            document.getElementById('registerMsg').textContent = '';
+        };
+        // Hide registration modal
+        document.getElementById('closeRegisterModal').onclick = function() {
+            document.getElementById('registerModal').classList.add('hidden');
+        };
+        // Handle registration
+        document.getElementById('registerBtn').onclick = async function() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            if (!name || !email || !password) {
+                document.getElementById('registerMsg').textContent = 'Please fill all fields.';
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE}/api/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('registerModal').classList.add('hidden');
+                    document.getElementById('registerMsg').textContent = '';
+                    alert('Registration successful! You can now log in as staff.');
+                } else {
+                    document.getElementById('registerMsg').textContent = data.error || 'Registration failed.';
+                }
+            } catch (error) {
+                document.getElementById('registerMsg').textContent = 'Network error. Please try again.';
+            }
+        };
+
+        // --- Private Messages ---
+        async function loadPrivateRecipients() {
+            try {
+                const response = await fetch(`${API_BASE}/api/users`);
+                const users = await response.json();
+                const select = document.getElementById('privateRecipient');
+                select.innerHTML = '<option value="">Select recipient...</option>';
+                users.forEach(u => {
+                    if (currentUser && u.email !== currentUser.username) {
+                        const option = document.createElement('option');
+                        option.value = u.email;
+                        option.textContent = u.name;
+                        select.appendChild(option);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading recipients:', error);
+            }
+        }
+
+        async function loadPrivateMessages() {
+            try {
+                const response = await fetch(`${API_BASE}/api/private-messages`);
+                const messages = await response.json();
+                document.getElementById('privateMessagesList').innerHTML = messages.map(m =>
+                    `<div class="bg-yellow-100 rounded p-3">
+                        <div><b>From:</b> ${m.sender} <b>To:</b> ${m.recipient}</div>
+                        <div>${m.text}</div>
+                        <div class="text-xs text-gray-500 mt-1">${m.time}</div>
+                    </div>`
+                ).join('');
+            } catch (error) {
+                console.error('Error loading private messages:', error);
+            }
+        }
+
+        document.getElementById('sendPrivateMessageBtn').onclick = async function() {
+            const recipient = document.getElementById('privateRecipient').value;
+            const input = document.getElementById('privateMessageInput');
+            const text = input.value.trim();
+            if (!recipient || !text || !currentUser) return;
+            try {
+                const response = await fetch(`${API_BASE}/api/private-messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sender: currentUser.username,
+                        recipient,
+                        text
+                    })
+                });
+                if (response.ok) {
+                    input.value = '';
+                    document.getElementById('privateRecipient').value = '';
+                    loadPrivateMessages();
+                }
+            } catch (error) {
+                alert('Error sending private message.');
+            }
+        };
+
+        // --- Staff Directory ---
+        async function loadDirectory() {
+            try {
+                const response = await fetch(`${API_BASE}/api/users`);
+                const users = await response.json();
+                document.getElementById('directoryList').innerHTML = users.map(u =>
+                    `<div class="bg-gray-50 rounded p-2 flex justify-between items-center">
+                        <div>
+                            <div class="font-semibold">${u.name}</div>
+                            <div class="text-sm text-gray-600">Email: <a href="mailto:${u.email}" class="text-blue-600">${u.email}</a></div>
+                        </div>
+                    </div>`
+                ).join('');
+            } catch (error) {
+                console.error('Error loading directory:', error);
+            }
+        }
+
+        // --- Calendar ---
+        document.getElementById('showCalendarEventModal').onclick = function() {
+            document.getElementById('calendarEventModal').classList.remove('hidden');
+            document.getElementById('calendarEventMsg').textContent = '';
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('eventDate').value = today;
+        };
+        document.getElementById('closeCalendarEventModal').onclick = function() {
+            document.getElementById('calendarEventModal').classList.add('hidden');
+        };
+        document.getElementById('createEventBtn').onclick = async function() {
+            const title = document.getElementById('eventTitle').value.trim();
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const description = document.getElementById('eventDescription').value.trim();
+            if (!title || !date || !time || !description) {
+                document.getElementById('calendarEventMsg').textContent = 'Please fill all fields.';
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE}/api/calendar-events`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title,
+                        date,
+                        time,
+                        description,
+                        organizer: currentUser.username
+                    })
+                });
+                if (response.ok) {
+                    document.getElementById('calendarEventModal').classList.add('hidden');
+                    loadCalendarEvents();
+                }
+            } catch (error) {
+                document.getElementById('calendarEventMsg').textContent = 'Error creating event.';
+            }
+        };
+        async function loadCalendarEvents() {
+            try {
+                const response = await fetch(`${API_BASE}/api/calendar-events`);
+                const events = await response.json();
+                events.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+                document.getElementById('calendarList').innerHTML = events.map(e =>
+                    `<div class="bg-indigo-100 rounded p-3 mb-2 border-l-4 border-indigo-400">
+                        <div class="font-semibold text-lg">${e.title}</div>
+                        <div class="text-sm text-gray-700"><strong>Date:</strong> ${e.date} | <strong>Time:</strong> ${e.time}</div>
+                        <div class="text-sm text-gray-600 mt-1">${e.description}</div>
+                        <div class="text-xs text-gray-500 mt-1">Organized by: ${e.organizer}</div>
+                    </div>`
+                ).join('');
+            } catch (error) {
+                console.error('Error loading calendar events:', error);
+            }
+        }
+
+        // --- Tab Activation Logic ---
+        // When switching to a tab, load its data if needed
+        document.querySelectorAll('.tabBtn').forEach(button => {
+            button.addEventListener('click', function() {
+                const tab = this.dataset.tab;
+                if (tab === 'privateTab') {
+                    loadPrivateRecipients();
+                    loadPrivateMessages();
+                } else if (tab === 'directoryTab') {
+                    loadDirectory();
+                } else if (tab === 'calendarTab') {
+                    loadCalendarEvents();
+                }
+            });
+        });
+
+        // After login, load all data for the first tab
+        // (add these calls after successful login)
+        // loadPrivateRecipients();
+        // loadPrivateMessages();
+        // loadDirectory();
+        // loadCalendarEvents();
+
+        testConnection();
+    </script>
+</body>
+
+</html>

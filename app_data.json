@@ -1,0 +1,45 @@
+{
+  "users": [
+    {
+      "email": "staff1@example.com",
+      "name": "Staff One",
+      "password": "123456@",
+      "role": "Staff"
+    },
+    {
+      "email": "staff2@example.com",
+      "name": "Staff Two",
+      "password": "123456@",
+      "role": "Staff"
+    },
+    {
+      "email": "joshua96@gmail.com",
+      "name": "joshua",
+      "password": "123456@",
+      "role": "Staff"
+    }
+  ],
+  "messages": [],
+  "memos": [],
+  "privateMessages": [
+    {
+      "sender": "joshua96@gmail.com",
+      "recipient": "staff1@example.com",
+      "text": "come",
+      "time": "12/07/2025, 18:17:39"
+    },
+    {
+      "sender": "Makanga Henry",
+      "recipient": "joshua96@gmail.com",
+      "text": "come",
+      "time": "12/07/2025, 18:29:16"
+    }
+  ],
+  "meetings": [],
+  "announcements": [],
+  "calendarEvents": [],
+  "currentUser": {
+    "role": "Staff",
+    "username": "joshua96@gmail.com"
+  }
+}

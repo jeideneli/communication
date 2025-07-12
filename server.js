@@ -2,8 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -143,6 +147,8 @@ app.post('/api/messages', (req, res) => {
     appData.messages.push(message);
     saveData();
     res.json(message);
+    // Broadcast new message to all clients
+    io.emit('newMessage', message);
 });
 
 // Memos
@@ -243,13 +249,31 @@ app.get('/api/users', (req, res) => {
     res.json(appData.users);
 });
 
+// Socket.IO connection
+io.on('connection', (socket) => {
+    console.log('A user connected');
+    socket.on('disconnect', () => {
+        console.log('A user disconnected');
+    });
+});
+
 // Serve the main HTML file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Serve the test file
+app.get('/test', (req, res) => {
+    res.sendFile(path.join(__dirname, 'simple-test.html'));
+});
+
+// Serve the working app
+app.get('/working', (req, res) => {
+    res.sendFile(path.join(__dirname, 'working-app.html'));
+});
+
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`Access the app from any device on your network using your computer's IP address`);
 });
